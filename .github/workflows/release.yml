@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "auto_fairy_lights/**"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read version
+        id: v
+        run: |
+          VERSION=$(grep -oP 'version = "\K[0-9.]+' auto_fairy_lights/blender_manifest.toml | head -1)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if release exists
+        id: exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.v.outputs.version }}" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build ZIPs
+        if: steps.exists.outputs.skip == 'false'
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          mkdir -p dist/legacy/auto_fairy_lights
+          cp auto_fairy_lights/*.py LICENSE dist/legacy/auto_fairy_lights/
+          (cd dist/legacy && zip -r "../auto_fairy_lights-$V.zip" auto_fairy_lights)
+          mkdir -p dist/ext
+          cp auto_fairy_lights/*.py auto_fairy_lights/blender_manifest.toml LICENSE dist/ext/
+          (cd dist/ext && zip -r "../auto_fairy_lights-$V-extension.zip" .)
+          ls -la dist/
+
+      - name: Create release
+        if: steps.exists.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V="${{ steps.v.outputs.version }}"
+          gh release create "v$V" \
+            "dist/auto_fairy_lights-$V.zip" \
+            "dist/auto_fairy_lights-$V-extension.zip" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Auto Fairy Lights v$V" \
+            --notes "✨ Draw strings of low-poly, game-ready fairy lights on any surface.
+
+**Install**
+- Blender 4.2+: \`auto_fairy_lights-$V-extension.zip\` (drag into Blender, or Get Extensions > Install from Disk)
+- Blender 3.6–4.1: \`auto_fairy_lights-$V.zip\` (Preferences > Add-ons > Install)
+
+**Highlights**
+- ✏️ Sketch strings with the curve Draw tool, right onto surfaces
+- 🔺 8–80 tris per bulb, live tri counter, built for games & VRChat
+- 🎨 Glow is its own material slot (single or multi-color) — swap in any Unity shader
+- ✨ UV2 = (string position, random seed) per bulb for twinkle/chase/rainbow shaders
+- 📦 One-click export prep, FBX/glTF verified
+- Tested on Blender 3.6 / 4.2 / 5.1
+
+https://fairylights.sketch494.online"
