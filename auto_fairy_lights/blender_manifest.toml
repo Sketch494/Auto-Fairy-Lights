@@ -1,0 +1,13 @@
+schema_version = "1.0.0"
+
+id = "auto_fairy_lights"
+version = "1.0.0"
+name = "Auto Fairy Lights"
+tagline = "Draw strings of low-poly game-ready fairy lights on any surface"
+maintainer = "Sketch494"
+type = "add-on"
+website = "https://fairylights.sketch494.online"
+tags = ["Add Curve", "Object"]
+blender_version_min = "4.2.0"
+license = ["SPDX:MIT"]
+platforms = ["windows-x64", "macos-arm64", "linux-x64", "macos-x64", "windows-arm64"]
