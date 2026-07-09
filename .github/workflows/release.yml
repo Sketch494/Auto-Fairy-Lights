@@ -6,6 +6,7 @@ on:
     paths:
       - "auto_fairy_lights/**"
       - ".github/workflows/release.yml"
+      - ".github/RELEASE_NOTES.md"
   workflow_dispatch:
 
 permissions:
@@ -57,18 +58,4 @@ jobs:
             "dist/auto_fairy_lights-$V-extension.zip" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Auto Fairy Lights v$V" \
-            --notes "✨ Draw strings of low-poly, game-ready fairy lights on any surface.
-
-**Install**
-- Blender 4.2+: \`auto_fairy_lights-$V-extension.zip\` (drag into Blender, or Get Extensions > Install from Disk)
-- Blender 3.6–4.1: \`auto_fairy_lights-$V.zip\` (Preferences > Add-ons > Install)
-
-**Highlights**
-- ✏️ Sketch strings with the curve Draw tool, right onto surfaces
-- 🔺 8–80 tris per bulb, live tri counter, built for games & VRChat
-- 🎨 Glow is its own material slot (single or multi-color) — swap in any Unity shader
-- ✨ UV2 = (string position, random seed) per bulb for twinkle/chase/rainbow shaders
-- 📦 One-click export prep, FBX/glTF verified
-- Tested on Blender 3.6 / 4.2 / 5.1
-
-https://fairylights.sketch494.online"
+            --notes-file .github/RELEASE_NOTES.md
